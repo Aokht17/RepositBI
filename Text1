@@ -1,0 +1,6 @@
+a=3
+b=int (input())
+if a!=b:
+    print ('не угадал')
+else:
+    print ('так точно')
