@@ -1,3 +1,5 @@
+import math
+
 print('Закон Ома')
 I = float(input('Сила тока='))
 R = float(input('Сопротивление='))
@@ -8,7 +10,6 @@ print('С из эн по ка')
 
 
 def c_is_n_po_k(k, N):
-    import math
     return int(math.factorial(N)/(math.factorial(k)*math.factorial(N-k)))
 
 
