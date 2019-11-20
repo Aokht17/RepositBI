@@ -2,8 +2,8 @@ def binary_search(arr1, l, r, x):
     """
     Returns the number of the element using binary search
     :param arr: massive
-    :param l: the start element (default = 0)
-    :param r: the end of the cycle, (default (len(arr)-1)
+    :param l: the start element (numbers start with 0)
+    :param r: the end of the cycle, (you should type r=len(arr)-1 if you want the whole sequence)
     :param x: element
     """
     arr = sorted(arr1)
