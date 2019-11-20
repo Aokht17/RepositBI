@@ -9,7 +9,7 @@ def binary_search(arr1, l, r, x):
     arr = sorted(arr1)
     if r >= l:
 
-        half = int(l + (r - l) / 2)
+        half = (l + (r - l) // 2)
 
         if arr[half] == x:
             return half
