@@ -27,7 +27,7 @@ helper function to search for orf in a complementary chain
 
 def gene_search(stringo):
     """
-    the main function, searches for the orf and writes them from start to stop codon
+    the main function, searches for the orf and writes them from start to stop codon for both chains
     :param stringo: str
     :return: list of str
     """
