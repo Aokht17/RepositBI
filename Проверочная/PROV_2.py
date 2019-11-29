@@ -21,7 +21,7 @@ helper function to search for orf in a complementary chain
         if len(output) >= 12:
             dna = Seq(output, generic_dna)
             result.append(dna.complement())
-    return (result)
+    return result
 
 # код слегка не доработан, так что выплевывает обертку от complement биопитона для комплементарной цепи
 
@@ -46,7 +46,7 @@ def gene_search(stringo):
         if len(output) >= 12:
             result.append(output)
     result.append(complementary_line(string))
-    return (result)
+    return result
 
 
 
