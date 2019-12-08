@@ -23,7 +23,6 @@ helper function to search for orf in a complementary chain
             result.append(str(dna.complement()))
     return result
 
-# код слегка не доработан, так что выплевывает обертку от complement биопитона для комплементарной цепи
 
 def gene_search(stringo):
     """
