@@ -7,7 +7,7 @@ reads lines above the specified length from the fastq file and translates to fas
     """
     from Bio import SeqIO
     seqs = []
-    uuu = list(SeqIO.parse(fastq_file, 'fastq'))
+    uuu = SeqIO.parse(fastq_file, 'fastq')
     for lines in uuu:
         if len(lines) >= min_numb:
             seqs.append(lines)
