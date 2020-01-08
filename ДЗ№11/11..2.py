@@ -22,7 +22,7 @@ for i in range(10):  # I set 10 because my computer "thinks" for a very long tim
     data_1.append(timeit.timeit("generator_1(i)", "from __main__ import generator_1, i"))
     data_2.append(timeit.timeit("generator_2(i)", "from __main__ import generator_2, i"))
 
-x = [i for i in range(10)]
+x = range(10)
 plt.title('Comparison')
 plt.xlabel('how many numbers')
 plt.ylabel('time')
