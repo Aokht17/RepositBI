@@ -13,4 +13,4 @@ def how_distributed(your_fasta):
     for line in u:
         app.append(len(line))
     sns.distplot(app)
-    return
+    
