@@ -12,5 +12,5 @@ def how_distributed(your_fasta):
     app = []
     for line in u:
         app.append(len(line))
-    sns.distplot(tuple(app))
+    sns.distplot(app)
     return
