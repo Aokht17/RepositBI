@@ -9,10 +9,9 @@ def sort_test(your_list):
     """
     function checks if a given list is sorted
     """
-    flag = False
     if all(your_list[i] <= your_list[i + 1] for i in range(len(your_list) - 1)):
-        flag = True
-    return flag
+        return True
+    return False
 
 
 def monkey_sort(s_list):
