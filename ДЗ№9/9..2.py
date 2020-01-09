@@ -15,7 +15,7 @@ def global_alignment(fast_file, match_score, mismatch_score, gap):
     """
         performs global alignment of 2 sequences by Needleman-Wunsch algorithm
         :param fast_file: the full path to your fasta file
-        :return: total score and aligned strings
+        :return: total score and aligned strings in a tuple
         """
     pi = list(SeqIO.parse(fast_file, 'fasta'))
     s1 = pi[0]
@@ -73,18 +73,14 @@ def global_alignment(fast_file, match_score, mismatch_score, gap):
     align1 = align1[::-1]
     align2 = align2[::-1]
     seqN = len(align1)
-    sym = ''
     seq_score = 0
     for i in range(seqN):
         a1 = align1[i]
         a2 = align2[i]
         if a1 == a2:
-            sym += a1
             seq_score += match(a1, a2, match_score, mismatch_score, gap)
-
         else:
             seq_score += match(a1, a2, match_score, mismatch_score, gap)
-            sym += ' '
 
     return seq_score, align1, align2
 
