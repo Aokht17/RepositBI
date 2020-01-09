@@ -7,7 +7,7 @@ def random_walk(number_of_steps):
     """
     2D visualization of random walk
     :param number_of_steps: int
-    :return: scatter plot
+    :return: none
     """
 
     x = numpy.zeros(number_of_steps)
@@ -27,8 +27,8 @@ def random_walk(number_of_steps):
             x[i] = x[i - 1]
             y[i] = y[i - 1] - 1
     plt.title("Random Walk ($n = " + str(number_of_steps) + "$ steps)")
-    plt.scatter(x, y, color='violet', s=0.5)
-    plt.savefig('random walk')
+    plt.plot(x, y, color='violet')
+    plt.savefig('random walk') 
 
 
 random_walk(100000)
