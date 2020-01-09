@@ -1,63 +1,92 @@
+import numpy as np
+from Bio import SeqIO
+
+
+def match(a, b, match_score, mismatch_score, gap):
+    if a == b:
+        return match_score
+    elif a == '-' or b == '-':
+        return gap
+    else:
+        return mismatch_score
+
+
 def global_alignment(fast_file, match_score, mismatch_score, gap):
     """
-    performs global alignment of 2 sequences by Needleman-Wunsch algorithm
-    :param fast_file: the full path to your fasta file
-    :return: total score and aligned strings in a tuple
-    """
-    from Bio import SeqIO
+        performs global alignment of 2 sequences by Needleman-Wunsch algorithm
+        :param fast_file: the full path to your fasta file
+        :return: total score and aligned strings
+        """
     pi = list(SeqIO.parse(fast_file, 'fasta'))
-    Q = pi[0]
-    R = pi[1]
-    dp = [[0 for x in range(len(Q) + 1)] for y in range(len(R) + 1)]  # nested list
-    direction = [['$' for x in range(len(Q) + 1)] for y in range(len(R) + 1)]
+    s1 = pi[0]
+    s2 = pi[1]
 
-    for i in range(len(R) + 1):
-        dp[i][0] = gap * i
-        direction[i][0] = 'up'
+    m, n = len(s1), len(s2)
+    matrix = np.zeros((m + 1, n + 1))
 
-    for j in range(len(Q) + 1):
-        dp[0][j] = gap * j
-        direction[0][j] = 'left'
+    for i in range(m + 1):
+        matrix[i][0] = gap * i
+    for j in range(n + 1):
+        matrix[0][j] = gap * j
 
-    direction_map = {0: 'diagonal', 1: 'up', 2: 'left'}
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            diag = matrix[i - 1][j - 1] + match(s1[i - 1], s2[j - 1], match_score, mismatch_score, gap)
+            delete = matrix[i - 1][j] + gap
+            insert = matrix[i][j - 1] + gap
+            matrix[i][j] = max(diag, delete, insert)
 
-    for i in range(1, len(R) + 1):
-        for j in range(1, len(Q) + 1):
-            if R[i - 1] == Q[j - 1]:
-                no_gap = dp[i - 1][j - 1] + match_score
-            else:
-                no_gap = dp[i - 1][j - 1] + mismatch_score
+    align1, align2 = '', ''
+    i, j = m, n
 
-            gap_in_query = dp[i - 1][j] + gap
-            gap_in_ref = dp[i][j - 1] + gap
+    # Traceback
+    while i > 0 and j > 0:
+        score_current = matrix[i][j]
+        score_diag = matrix[i - 1][j - 1]
+        score_left = matrix[i][j - 1]
+        score_up = matrix[i - 1][j]
 
-            max_score = max([no_gap, gap_in_query, gap_in_ref])
-            max_score_index = [no_gap, gap_in_query, gap_in_ref].index(max_score)
-            dp[i][j] = max_score
-            direction[i][j] = direction_map[max_score_index]
+        if score_current == score_diag + match(s1[i - 1], s2[j - 1], match_score, mismatch_score, gap):
+            a1, a2 = s1[i - 1], s2[j - 1]
+            i, j = i - 1, j - 1
+        elif score_current == score_up + gap:
+            a1, a2 = s1[i - 1], '-'
+            i -= 1
+        elif score_current == score_left + gap:
+            a1, a2 = '-', s2[j - 1]
+            j -= 1
+        align1 += a1
+        align2 += a2
 
-    i = len(R)  # обратный путь
-    j = len(Q)
+    while i > 0:
+        a1, a2 = s1[i - 1], '-'
+        align1 += a1
+        align2 += a2
+        i -= 1
 
-    ref_with_gaps = ''
-    query_with_gaps = ''
+    while j > 0:
+        a1, a2 = '-', s2[j - 1]
+        align1 += a1
+        align2 += a2
+        j -= 1
 
-    while i != 0 or j != 0:
-        if direction[i][j] == 'diagonal':
-            query_with_gaps = Q[j - 1] + query_with_gaps
-            ref_with_gaps = R[i - 1] + ref_with_gaps
-            i = i - 1
-            j = j - 1
-        elif direction[i][j] == 'left':
-            ref_with_gaps = '_' + ref_with_gaps
-            query_with_gaps = Q[j - 1] + query_with_gaps
-            j = j - 1
-        elif direction[i][j] == 'up':
-            query_with_gaps = '_' + query_with_gaps
-            ref_with_gaps = R[i - 1] + ref_with_gaps
-            i = i - 1
+    align1 = align1[::-1]
+    align2 = align2[::-1]
+    seqN = len(align1)
+    sym = ''
+    seq_score = 0
+    for i in range(seqN):
+        a1 = align1[i]
+        a2 = align2[i]
+        if a1 == a2:
+            sym += a1
+            seq_score += match(a1, a2, match_score, mismatch_score, gap)
 
-    return tuple([dp[len(R)][len(Q)], query_with_gaps, ref_with_gaps])
+        else:
+            seq_score += match(a1, a2, match_score, mismatch_score, gap)
+            sym += ' '
+
+    return seq_score, align1, align2
 
 
-print(global_alignment('my_fasta', -3, 5, -3))
+print(global_alignment('my_fasta', 1, -1, -1))
