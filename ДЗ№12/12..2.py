@@ -1,4 +1,5 @@
 from Bio.Seq import Seq
+from Bio import SeqIO
 from Bio.Alphabet import generic_dna
 
 
@@ -9,10 +10,11 @@ def personal_ribosome(fasta_way, codon='Standard'):
     :param codon: codon table, 'Standard' by default
     """
     with open(fasta_way) as file:
-        for stroka in file:
-            if not stroka.startswith('>'):
-                row = Seq(stroka, generic_dna)
-                yield row.translate(table=codon)
+        sequences = [str(record.seq) for record in SeqIO.parse(file, 'fasta')]
+        for stroka in sequences:
+            row = Seq(stroka, generic_dna)
+            yield row.translate(table=codon)
+        
 
 
 
