@@ -2,9 +2,11 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from itertools import product
 import re
+from Bio import SeqIO
 
 
 class UsefulStatistics():
+    # applicable to fasta files without gaps between lines
 
     def __init__(self, fasta_path):
         self.fasta_path = fasta_path
@@ -18,9 +20,9 @@ class UsefulStatistics():
         """
         count = 0
         with open(self.fasta_path) as file:
-            for lines in file:
+            for lines in [record.seq for record in SeqIO.parse(file, 'fasta')]:
                 count += 1
-        return int(count/2)
+        return int(count)
 
     def histogram(self):
         """
@@ -32,7 +34,10 @@ class UsefulStatistics():
             for line in file:
                 if not line.startswith('>'):
                     app.append(len(line))
-        sns.distplot(tuple(app))
+        ax = sns.distplot(tuple(app))
+        ax.set_title('Length distribution')
+        ax.set(xlabel='Sequence length', ylabel='Frequency')
+        plt.show()
 
     def GC_percent(self):
         """
@@ -58,13 +63,16 @@ class UsefulStatistics():
                 if not lines.startswith('>'):
                     for key in dict_4mers:
                         dict_4mers[key] += sum(1 for i in range(len(lines)) if lines.startswith(key, i))
-        empty_keys = [k for k, v in dict_4mers.items() if not v]
+        empty_keys = [k for k, v in dict_4mers.items() if not v]  # all 4-mers do not fit even horizontally
         for k in empty_keys:
             del dict_4mers[k]
 
         labels, values = zip(*dict_4mers.items())
-        plt.bar(labels, values, color='r')
+        plt.bar(labels,values, color='r')
+        plt.xticks(rotation=90)
         plt.title('Frequences of 4-mers')
+        plt.xlabel('k-mer')
+        plt.ylabel('Frequency')
         plt.show()
 
     def n_conter(self):
@@ -87,6 +95,8 @@ class UsefulStatistics():
         labels, values = zip(*dict_dist.items())
         plt.plot(labels, values, color='r')
         plt.title('N frequences')
+        plt.xlabel('Position')
+        plt.ylabel('Frequency of N')
         plt.show()
 
     def implement(self):
@@ -106,18 +116,6 @@ class UsefulStatistics():
 
 a = UsefulStatistics('my_fasta')
 a.implement()
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
