@@ -14,8 +14,7 @@ class MorePositive(set):
         """
         if a > 0:
             super().add(a)
-        else:
-            raise ValueError
+       
 
 
 d = MorePositive([1, 6, -7, 96, 0])
