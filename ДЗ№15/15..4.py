@@ -1,7 +1,7 @@
 import re
 
 with open('2430AD.txt', 'r') as file:
-    pat = re.compile(r'([\w+\s?]+\b!)')
+    pat = re.compile(r'(?!\W)[\w+\s?]+\b!')
     num=[]
     for line in file:
         num += pat.findall(line)
