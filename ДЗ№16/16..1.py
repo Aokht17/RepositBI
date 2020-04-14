@@ -3,6 +3,7 @@ import os
 import shutil
 from pathlib import Path
 
+
 # creating new directory
 os.makedirs('C:/Users/User/Desktop/my_new_dir', exist_ok=True)
 p = Path('C:/Users/User/Desktop/my_new_dir')
