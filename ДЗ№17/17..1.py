@@ -17,8 +17,8 @@ connection.executemany(query1, learners)
 connection.execute('''CREATE TABLE IF NOT EXISTS attendance (
 attendance_id INTEGER PRIMARY KEY,
 course_id INTEGER,
-learner_id INTEGER CASCADE,
-FOREIGN KEY (learner_id) REFERENCES learners (learner_id)
+learner_id INTEGER,
+FOREIGN KEY (learner_id) REFERENCES learners (learner_id) CASCADE
 )''')
 
 connection.execute(''' UPDATE learners
