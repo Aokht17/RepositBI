@@ -36,7 +36,7 @@ list_work1 = [('The Clown', 1963, 'novel', 3), ('Foam of the Days', 1947, 'novel
 connection.executemany(query3, list_work1)
 
 connection.commit()
-# Эта штука работает в SQL браузере и делает pivot таблицу. Я хотела запихнуть ее в саму таблицу и сделать обновляемой
+# Эта штука работает в SQL браузере и делает pivot таблицу. Я хотела запихнуть ее в саму базу и сделать обновляемой
 # но я не знаю как(((
 connection.execute(''' SELECT work_author as writer, COUNT(work_id) AS things   
                                                 FROM works 
