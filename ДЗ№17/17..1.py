@@ -18,7 +18,7 @@ connection.execute('''CREATE TABLE IF NOT EXISTS attendance (
 attendance_id INTEGER PRIMARY KEY,
 course_id INTEGER,
 learner_id INTEGER,
-FOREIGN KEY (learner_id) REFERENCES learners (learner_id) CASCADE
+FOREIGN KEY (learner_id) REFERENCES learners (learner_id) ON UPDATE CASCADE, ON DELETE CASCADE
 )''')
 
 connection.execute(''' UPDATE learners
