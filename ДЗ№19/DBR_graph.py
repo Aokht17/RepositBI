@@ -1,10 +1,11 @@
-import collections, sys
+import sys, collections, argparse
 from Bio import Seq, SeqIO
 
 
-def an_str(km):
+def reverse_comp(km):
     """
     obviously, makes reverse complement
+    km: given seq
     """
     return Seq.reverse_complement(km)
 
@@ -12,70 +13,79 @@ def an_str(km):
 def kmers(seq, k):
     """
     makes all possible k-mers from the seq
+    seq: given seq
+    k: the length of k-mers
     """
     for i in range(len(seq) - k + 1):
         yield seq[i:i + k]
 
 
-def fw(km):
+def forward_further(km):
     """
     yield all forward neighbors of the given k-mer, which can stand after
+    km: given k-mer
     """
     for x in 'ACGT':
         yield km[1:] + x
 
 
-def bw(km):
+def forward_before(km):
     """
     yield all forward neighbors of the given k-mer, which can stand before
+    km: given k-mer
     """
     for x in 'ACGT':
         yield x + km[:-1]
 
 
-def graph(fn, k, limit=1):
+def graph(fn, k, limit=3):
     """
     creates a dictionary that keeps track of all k-mers' and their reversed pairs coverage
     fn: fastq-file(s) in a list
     k: the length of k-mer
-    limit: the threshold <= that low coverage k-mers will be deleted, default=1
+    limit: the threshold > that low coverage k-mers will be deleted, default=3
     """
-    d = collections.defaultdict(int)
+    dict_of_kmer = collections.defaultdict(int)
     for f in fn:
-        reads = SeqIO.parse(f, 'fastq')
+        format = str(f).split('.')[-1]
+        if format is 'fq' or format is 'fastq':  # rather primitive format recognition
+            reads = SeqIO.parse(f, 'fastq')
+        else:
+            reads = SeqIO.parse(f, 'fasta')
         for read in reads:
             seq_l = str(read.seq).split('N')
             for seq in seq_l:
                 for km in kmers(seq, k):
-                    d[km] += 1
-                seq = an_str(seq)
+                    dict_of_kmer[km] += 1
+                seq = reverse_comp(seq)
                 for km in kmers(seq, k):
-                    d[km] += 1
+                    dict_of_kmer[km] += 1
 
-    d1 = [x for x in d if d[x] <= limit]
+    d1 = [x for x in dict_of_kmer if dict_of_kmer[x] <= limit] # filtering k-mers with low coverage
     for x in d1:
-        del d[x]
+        del dict_of_kmer[x]
 
-    return d
+    return dict_of_kmer
 
 
 def contig_forward(d, km):
     """
     walks along the de Bruijn graph in the forward direction
+    d: dictionary of k-mers and coverage from graph function
     """
     c_fw = [km]
 
     while True:
-        if sum(x in d for x in fw(c_fw[-1])) != 1:
+        if sum(x in d for x in forward_further(c_fw[-1])) != 1:
             break
 
-        cand = [x for x in fw(c_fw[-1]) if x in d][0]
-        if cand == km or cand == an_str(km):
+        cand = [x for x in forward_further(c_fw[-1]) if x in d][0]
+        if cand == km or cand == reverse_comp(km):
             break  # break out of cycles
-        if cand == an_str(c_fw[-1]):
+        elif cand == reverse_comp(c_fw[-1]):
             break  # break out of hairpins
 
-        if sum(x in d for x in bw(cand)) != 1:
+        elif sum(x in d for x in forward_before(cand)) != 1:
             break
 
         c_fw.append(cand)
@@ -86,15 +96,17 @@ def contig_forward(d, km):
 def get_contig(d, km):
     """
     finds the contig that the k-mer km belongs to
+    d: dictionary of k-mers and coverage from graph function
+    km: k-mer
     """
     c_fw = contig_forward(d, km)
 
-    c_bw = contig_forward(d, an_str(km))
+    c_bw = contig_forward(d, reverse_comp(km))
 
-    if km in fw(c_fw[-1]):
+    if km in forward_further(c_fw[-1]):
         c = c_fw
     else:
-        c = [an_str(x) for x in c_bw[-1:0:-1]] + c_fw
+        c = [reverse_comp(x) for x in c_bw[-1:0:-1]] + c_fw
     return c[0] + ''.join(x[-1] for x in c[1:]), c
 
 
@@ -109,7 +121,7 @@ def all_contigs(d):
             s, c = get_contig(d, x)
             for y in c:
                 done.add(y)
-                done.add(an_str(y))
+                done.add(reverse_comp(y))
             r.append(s)
 
     return r
@@ -124,12 +136,12 @@ def write_out(cs):
 
 
 # to run from command line
-if __name__ == "__main__":
-    if len(sys.argv) < 2: exit("args: <k> <reads_1.fq> ...")
-    k = int(sys.argv[1])
-    d = graph(sys.argv[2:], k, 1)
-    cs = all_contigs(d)
-    write_out(cs)
+#if __name__ == "__main__":
+    #if len(sys.argv) < 2: exit("args: <k> <reads_1.fq> ...")
+    #k = int(sys.argv[1])
+    #d = graph(sys.argv[2:], k, 1)
+    #cs = all_contigs(d)
+    #write_out(cs)
 
 
 # or in PyCharm, for example
@@ -137,8 +149,20 @@ def sum_assembly(k, *files):
     """
     aggregated function
     k - the length of k-mers used in assembly
-    *files - your reads in fastq format
+    *files - your reads in fasta or fastq format
     """
-    d = graph([i for i in files], int(k), 1)
+    d = graph([i for i in files], k)
     cs = all_contigs(d)
     write_out(cs)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-k','--kmer', type=int, default=25, help='the length of k-mers used in assembly', required=False)
+    parser.add_argument('-f','--files', nargs='+', help='reads in fasta or fastq format', required=True)
+    args = parser.parse_args()
+    sum_assembly(args.k, args.files)
+
+    #d = graph([i for i in args.files], args.k)
+    #cs = all_contigs(d)
+    #write_out(cs)
