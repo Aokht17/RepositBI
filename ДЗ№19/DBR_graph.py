@@ -158,10 +158,10 @@ def sum_assembly(k, *files):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-k','--kmer', type=int, default=25, help='the length of k-mers used in assembly', required=False)
-    parser.add_argument('-f','--files', nargs='+', help='reads in fasta or fastq format', required=True)
+    parser.add_argument('--kmer', type=int, default=25, help='the length of k-mers used in assembly', required=False)
+    parser.add_argument('--files', nargs='+', help='reads in fasta or fastq format', required=True)
     args = parser.parse_args()
-    sum_assembly(args.k, args.files)
+    sum_assembly(args.kmer, args.files)
 
     #d = graph([i for i in args.files], args.k)
     #cs = all_contigs(d)
