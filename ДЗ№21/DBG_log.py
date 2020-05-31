@@ -69,7 +69,8 @@ def graph(fn, k, limit=3):
     d1 = [x for x in dict_of_kmer if dict_of_kmer[x] <= limit] # filtering k-mers with low coverage
     for x in d1:
         del dict_of_kmer[x]
-    logger.info('Filering k-mers with coverage lower than %s', limit)
+        
+    logger.info('Filtering k-mers with coverage lower than %s', limit)
     return dict_of_kmer
 
 
